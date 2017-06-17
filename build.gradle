@@ -1,66 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven'
-apply plugin: 'signing'
-def env = "-"+(System.getProperty("env")?:System.getenv()["USERDOMAIN"])
-android {
-    compileSdkVersion 24
-    buildToolsVersion "25.0.2"
-    defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"+"$env"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        externalNativeBuild {
-            cmake {
-                cppFlags "-frtti -fexceptions"
-            }
-        }
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
-        }
-    }
-}
-signing{
-    required { has("release") && gradle.taskGraph.hasTask("uploadArchives")}
-    sign configurations.archives
-}
-def MAVEN_TUYOU_REPO_URL='http://192.168.0.111:8082/nexus/content/repositories/tuyou'
-def MAVEN_TUYOU_USER_NAME="admin"
-def MAVEN_TUYOU_PSWD="admin123"
-uploadArchives {
-    configuration = configurations.archives
-    repositories.mavenDeployer{
-        beforeDeployment {
-            MavenDeployment deployment -> signing.signPom(deployment)
-        }
-        repository(url:MAVEN_TUYOU_REPO_URL){
-            authentication(userName: MAVEN_TUYOU_USER_NAME,
-                    password: MAVEN_TUYOU_PSWD)
-        }
-        pom.project{
-            name 'libv4l2'
-            packaging 'aar'
-            description 'V4L2 lib'
-            url MAVEN_TUYOU_REPO_URL
-            groupId "com.tuyou.tsd"
-            artifactId "v4l2"
-            version android.defaultConfig.versionName
-        }
-    }
-}
+
 
 configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
-}
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
